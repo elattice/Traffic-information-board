@@ -3,3 +3,6 @@ server
 
 # local database
 data/
+
+# frontend build embedded into the Go binary
+internal/webui/dist/

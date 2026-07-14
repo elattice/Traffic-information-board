@@ -25,7 +25,7 @@ digital-board/
 │   ├── cmd/server/          # エントリーポイント(ルーター設定・起動)
 │   ├── internal/db/         # SQLite接続・テーブル初期化・初期データ投入
 │   ├── internal/timetable/  # 型定義・DB取得処理・APIハンドラー・CSV取り込み
-│   ├── internal/webui/      # ビルド済みReactの静的配信(SPAフォールバック)
+│   ├── internal/webui/      # ビルド済みReactの埋め込み配信(SPAフォールバック)
 │   └── data/timetable.db    # SQLite DBファイル(初回起動時に自動作成・git管理外)
 ├── frontend/
 │   ├── src/pages/           # BoardPage(掲示板) / AdminPage(管理画面)
@@ -73,7 +73,7 @@ npm install   # 初回のみ
 npm run build
 ```
 
-`frontend/dist/` にビルド済みファイルが出力されます。
+`backend/internal/webui/dist/` にビルド済みファイルが出力されます。このファイル群は次のGoビルド時にバイナリへ埋め込まれます。
 
 ## 本番起動方法(Goサーバー単体)
 
@@ -90,8 +90,8 @@ go run ./cmd/server
 バイナリにしたい場合は `go build ./cmd/server` で `backend/server` が作られます(起動は同じく `backend/` ディレクトリから `./server`)。
 
 > **注意:**
-> - Goサーバーは `../frontend/dist` を相対パスで参照するため、現状は必ず `backend/` ディレクトリから起動してください(systemd等では `WorkingDirectory` を指定)。
-> - DBファイルは初回起動時に `backend/data/timetable.db` へ自動作成され、初期サンプルデータが入ります。
+> - 画面のファイルはGoバイナリに埋め込まれているため、バイナリはどのディレクトリからでも画面とAPIを配信できます。
+> - DBファイルは起動時の作業ディレクトリを基準に `data/timetable.db` へ作成されます。本番運用ではDBの保存場所を固定するため、systemd等の `WorkingDirectory` を `backend/` に指定してください。
 
 ## API一覧
 
@@ -181,7 +181,7 @@ google-chrome --kiosk --noerrdialogs --disable-session-crashed-bubble --incognit
 | 症状 | 原因と対処 |
 | --- | --- |
 | 起動時に `bind: address already in use` | ポート8080が使用中。前回のサーバーが残っている。`lsof -ti :8080 \| xargs kill` で停止してから再起動する |
-| `http://localhost:8080/` が真っ白・404になる | `frontend/dist` がない。`cd frontend && npm run build` を実行してからサーバーを再起動する(起動ログに warning が出ます) |
+| `go build ./cmd/server` が埋め込み対象なしで失敗する | フロントエンドが未ビルド。先に `cd frontend && npm run build` を実行する |
 | 掲示板に何も表示されない | 現在時刻以降の便がない可能性が高い。`/admin` の一覧で時刻表の内容と現在時刻を確認する。当日分のCSVをインポートし直す |
 | CSVアップロードで「バリデーションに失敗しました」 | 表示された「◯行目: ...」のエラーに従ってCSVを修正する。よくある原因: 時刻が `9:15` のようにゼロ埋めされていない、kindが `bus`/`train` 以外、ヘッダー行の列名違い |
 | CSVの日本語が文字化けする | 文字コードがUTF-8になっていない。「CSV UTF-8」で保存し直してインポートする |

@@ -38,7 +38,7 @@ npm run build
 
 - [ ] コマンドが終了コード0で完了した
 - [ ] TypeScriptまたはViteのビルドエラーがない
-- [ ] `frontend/dist/index.html` とJS/CSSアセットが生成された
+- [ ] `backend/internal/webui/dist/index.html` とJS/CSSアセットが生成された
 
 ## 2. Go build
 
@@ -54,7 +54,7 @@ go build -o server ./cmd/server
 
 ## 3. 埋め込み済みバイナリの起動確認
 
-バイナリだけを一時ディレクトリへコピーし、ソースツリーや `frontend/dist` に依存せず起動できることを確認します。
+バイナリだけを一時ディレクトリへコピーし、ソースツリーやビルド出力ディレクトリに依存せず起動できることを確認します。
 
 ```bash
 cp server "$PREFLIGHT_DIR/server"
@@ -67,7 +67,7 @@ cd "$PREFLIGHT_DIR"
 - [ ] `server started: http://localhost:8080` が表示された
 - [ ] 起動直後に異常終了しない
 - [ ] 一時ディレクトリに `data/timetable.db` が作成された
-- [ ] `frontend/dist` を一時ディレクトリへコピーしていなくても画面が配信される
+- [ ] `backend/internal/webui/dist` を一時ディレクトリへコピーしていなくても画面が配信される
 
 ## 4. `/` と `/admin` の表示確認
 

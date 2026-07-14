@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -15,10 +13,7 @@ import (
 	"open-campus-board/backend/internal/webui"
 )
 
-const (
-	dbPath  = "data/timetable.db"
-	distDir = "../frontend/dist"
-)
+const dbPath = "data/timetable.db"
 
 func main() {
 	conn, err := db.Open(dbPath)
@@ -48,11 +43,7 @@ func main() {
 // frontendHandler serves the built React app. Unknown /api paths are
 // kept as 404 instead of falling back to index.html.
 func frontendHandler() http.Handler {
-	if _, err := os.Stat(filepath.Join(distDir, "index.html")); err != nil {
-		log.Printf("warning: %s not found; run `npm run build` in frontend/ to serve the UI", distDir)
-	}
-
-	spa := webui.Handler(os.DirFS(distDir))
+	spa := webui.Handler()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
